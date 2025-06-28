@@ -62,38 +62,62 @@ MyRadikoは、radikoの番組を録音・管理するためのWebアプリケー
 
 ### インストールと起動
 
+#### 🚀 ワンクリック起動（推奨）
+
+**Linux/macOS:**
+```bash
+git clone https://github.com/enraku/myradiko.git
+cd myradiko
+./start.sh
+```
+
+**Windows:**
+```cmd
+git clone https://github.com/enraku/myradiko.git
+cd myradiko
+start.bat
+```
+
+#### 📋 手動起動
+
 1. **プロジェクトクローン**
 ```bash
-git clone <repository-url>
+git clone https://github.com/enraku/myradiko.git
 cd myradiko
 ```
 
-2. **バックエンド起動**
+2. **初期セットアップ**
 ```bash
-# 依存関係インストール
-npm install
-
-# データベース初期化
-npm run init-db
-
-# サーバー起動（ポート3010）
-npm start
+npm run setup
 ```
 
-3. **フロントエンド起動**
+3. **開発環境起動**
 ```bash
-cd client
-
-# 依存関係インストール
-npm install
-
-# 開発サーバー起動（ポート5174）
+# サーバーとクライアントを同時起動
 npm run dev
+# または
+npm run start:all
 ```
 
-4. **アクセス**
-- フロントエンド: http://localhost:5174
-- バックエンドAPI: http://localhost:3010
+4. **本番環境起動**
+```bash
+npm run start:prod
+```
+
+#### 🔗 アクセス
+- **フロントエンド**: http://localhost:5174
+- **バックエンドAPI**: http://localhost:3010
+
+#### 📝 利用可能なコマンド
+```bash
+npm run dev          # 開発環境で起動
+npm run start:all    # 開発環境で起動（devと同じ）
+npm run start:prod   # 本番環境で起動
+npm run setup        # 初期セットアップ
+npm run test:all     # 全テスト実行
+npm run db:init      # データベース初期化
+npm run build        # フロントエンドビルド
+```
 
 ## 使用方法
 

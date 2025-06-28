@@ -5,15 +5,20 @@
   "main": "server/app.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start:all": "concurrently \"npm run server\" \"npm run client\"",
+    "setup": "npm install && cd client && npm install && cd .. && npm run db:init",
     "server": "nodemon server/app.js",
     "client": "cd client && npm run dev",
     "build": "cd client && npm run build",
     "start": "node server/app.js",
+    "start:prod": "concurrently \"npm start\" \"cd client && npm run preview\"",
     "test": "jest",
+    "test:all": "npm test && cd client && npm test",
     "db:init": "node server/utils/initDatabase.js",
     "db:test": "node server/utils/testDatabase.js",
     "radiko:test": "node server/utils/testRadikoAPI.js",
-    "api:test": "node server/utils/testAPI.js"
+    "api:test": "node server/utils/testAPI.js",
+    "postinstall": "cd client && npm install"
   },
   "keywords": [
     "radiko",
