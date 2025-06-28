@@ -48,7 +48,9 @@
         message="読み込み中..."
       />
       
-      <router-view v-else />
+      <RecordingStatus v-if="!loading" />
+      
+      <router-view v-if="!loading" />
     </main>
   </div>
 </template>
@@ -58,12 +60,14 @@ import { onMounted } from 'vue'
 import { appState, actions } from './store/index.js'
 import LoadingSpinner from './components/common/LoadingSpinner.vue'
 import ErrorMessage from './components/common/ErrorMessage.vue'
+import RecordingStatus from './components/RecordingStatus.vue'
 
 export default {
   name: 'App',
   components: {
     LoadingSpinner,
-    ErrorMessage
+    ErrorMessage,
+    RecordingStatus
   },
   setup() {
     let lastAction = null
