@@ -396,9 +396,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-  
-  .main-content {
-    padding: 1rem;
-  }
-}
 </style>
