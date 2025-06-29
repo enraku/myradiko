@@ -4,6 +4,9 @@
       <h2>🎵 録音ファイル管理</h2>
       
       <div class="header-actions">
+        <button @click="openRecordingsFolder" class="btn-primary" :disabled="loading">
+          📁 フォルダを開く
+        </button>
         <button @click="refreshData" class="btn-secondary" :disabled="loading">
           {{ loading ? '更新中...' : '更新' }}
         </button>
@@ -285,6 +288,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { appState, actions } from '../store/index.js'
 import RecordingDetails from '../components/RecordingDetails.vue'
+import axios from 'axios'
 
 export default {
   name: 'Recordings',
@@ -550,6 +554,20 @@ export default {
       }
     }
     
+    // 録音フォルダを開く
+    const openRecordingsFolder = async () => {
+      try {
+        const response = await axios.post('/api/system/open-recordings-folder')
+        if (response.data.success) {
+          console.log('Recordings folder opened:', response.data.data.path)
+          // 成功時は何もしない（フォルダが開かれるはず）
+        }
+      } catch (error) {
+        console.error('Failed to open recordings folder:', error)
+        alert('フォルダを開けませんでした: ' + (error.response?.data?.message || error.message))
+      }
+    }
+    
     // イベントリスナー
     const handleClickOutside = (event) => {
       if (!event.target.closest('.dropdown')) {
@@ -620,7 +638,8 @@ export default {
       confirmDelete,
       closeDetailsModal,
       closeDeleteModal,
-      cleanupFiles
+      cleanupFiles,
+      openRecordingsFolder
     }
   }
 }
