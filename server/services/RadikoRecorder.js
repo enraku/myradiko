@@ -222,6 +222,107 @@ class RadikoRecorder {
         
         console.log(`Stopped ${recordings.length} active recordings`);
     }
+
+    // 過去番組の即時ダウンロード
+    async downloadPastProgram({ stationId, startTime, endTime, title }) {
+        try {
+            console.log(`Starting download: ${title} (Station: ${stationId})`);
+            
+            // 時刻の検証
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            const now = new Date();
+            
+            if (end >= now) {
+                throw new Error('この番組はまだ終了していません');
+            }
+            
+            // radikoの仕様上、1週間以内の番組のみダウンロード可能
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            if (start < oneWeekAgo) {
+                throw new Error('この番組は配信期間を過ぎています（1週間以内の番組のみダウンロード可能）');
+            }
+            
+            // ファイル名生成
+            const dateStr = start.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
+            const filename = `${stationId}_${dateStr}_${this.sanitizeFilename(title)}.m4a`;
+            const outputPath = path.join(this.recordingsDir, filename);
+            
+            // タイムシフト録音コマンドの準備
+            const downloadProcess = await this.startRadikoTimeshiftDownload(stationId, start, end, outputPath);
+            
+            const download = {
+                id: `download_${Date.now()}`,
+                stationId,
+                title,
+                filename,
+                outputPath,
+                process: downloadProcess,
+                startTime: start,
+                endTime: end,
+                status: 'downloading'
+            };
+            
+            this.activeRecordings.set(download.id, download);
+            
+            return download;
+            
+        } catch (error) {
+            console.error('Failed to start download:', error);
+            throw error;
+        }
+    }
+
+    // radikoタイムシフトダウンロード開始
+    async startRadikoTimeshiftDownload(stationId, startTime, endTime, outputPath) {
+        return new Promise((resolve, reject) => {
+            // 時刻をradikoの形式に変換
+            const formatRadikoTime = (date) => {
+                return date.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '');
+            };
+            
+            const startTimeStr = formatRadikoTime(startTime);
+            const endTimeStr = formatRadikoTime(endTime);
+            
+            console.log(`Downloading timeshift: ${stationId} from ${startTimeStr} to ${endTimeStr}`);
+            
+            // radikoタイムシフト録音のコマンド（実際の実装では適切なradiko録音ツールを使用）
+            // ここでは仮のコマンドとして記述
+            const args = [
+                '-station', stationId,
+                '-start', startTimeStr,
+                '-end', endTimeStr,
+                '-output', outputPath
+            ];
+            
+            // 実際のradiko録音プロセス（rec_radiko.plやrec_radikoなど）
+            const process = spawn('rec_radiko.pl', args, {
+                stdio: ['pipe', 'pipe', 'pipe']
+            });
+            
+            process.on('error', (error) => {
+                console.error('Failed to start radiko timeshift download process:', error);
+                reject(error);
+            });
+            
+            process.on('spawn', () => {
+                console.log('Radiko timeshift download process started');
+                resolve(process);
+            });
+            
+            process.stdout.on('data', (data) => {
+                console.log(`Download stdout: ${data}`);
+            });
+            
+            process.stderr.on('data', (data) => {
+                console.error(`Download stderr: ${data}`);
+            });
+            
+            process.on('close', (code) => {
+                console.log(`Download process exited with code ${code}`);
+            });
+        });
+    }
 }
 
 module.exports = RadikoRecorder;

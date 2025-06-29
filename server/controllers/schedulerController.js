@@ -105,6 +105,29 @@ const schedulerController = {
                 message: error.message
             });
         }
+    },
+
+    // 録音停止
+    async stopRecording(req, res) {
+        try {
+            const { recordingId } = req.params;
+            const scheduler = req.app.locals.recordingScheduler;
+            
+            await scheduler.stopRecording(recordingId);
+            
+            res.json({
+                success: true,
+                message: `Recording ${recordingId} stopped successfully`
+            });
+        } catch (error) {
+            console.error('Failed to stop recording:', error);
+            
+            res.status(500).json({
+                success: false,
+                error: 'Failed to stop recording',
+                message: error.message
+            });
+        }
     }
 };
 

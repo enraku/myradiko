@@ -88,6 +88,19 @@ export default {
     
     // アプリ初期化
     onMounted(async () => {
+      // Electron環境の検出
+      if (window.electronAPI) {
+        console.log('Running in Electron environment')
+        document.body.classList.add('electron-app')
+        
+        try {
+          const appInfo = await window.electronAPI.getAppInfo()
+          console.log('App Info:', appInfo)
+        } catch (error) {
+          console.error('Failed to get app info:', error)
+        }
+      }
+      
       lastAction = async () => {
         await actions.loadSettings()
         await actions.loadStations()
@@ -399,5 +412,28 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Electron専用スタイル */
+.electron-app {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.electron-app input,
+.electron-app textarea,
+.electron-app [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* タイトルバー調整 */
+.electron-app .app-header {
+  -webkit-app-region: drag;
+}
+
+.electron-app .app-header .main-nav,
+.electron-app .app-header button {
+  -webkit-app-region: no-drag;
 }
 </style>

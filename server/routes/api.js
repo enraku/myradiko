@@ -9,6 +9,8 @@ const recordingsController = require('../controllers/recordingsController');
 const schedulerController = require('../controllers/schedulerController');
 const settingsController = require('../controllers/settingsController');
 const logsController = require('../controllers/logsController');
+const downloadController = require('../controllers/downloadController');
+const systemController = require('../controllers/systemController');
 
 // Health check
 router.get('/health', (req, res) => {
@@ -47,6 +49,7 @@ router.post('/scheduler/start', schedulerController.start);
 router.post('/scheduler/stop', schedulerController.stop);
 router.post('/scheduler/update', schedulerController.updateSchedules);
 router.get('/scheduler/active', schedulerController.getActiveRecordings);
+router.post('/scheduler/recordings/:recordingId/stop', schedulerController.stopRecording);
 
 // Settings routes
 router.get('/settings', settingsController.getAll);
@@ -59,5 +62,16 @@ router.get('/logs', logsController.getAll);
 router.get('/logs/level/:level', logsController.getByLevel);
 router.get('/logs/category/:category', logsController.getByCategory);
 router.get('/logs/recent/:days', logsController.getRecent);
+
+// Download routes
+router.post('/downloads', downloadController.downloadPastProgram);
+router.get('/downloads/active', downloadController.getActiveDownloads);
+router.get('/downloads/:downloadId/status', downloadController.getDownloadStatus);
+router.post('/downloads/:downloadId/stop', downloadController.stopDownload);
+
+// System routes
+router.get('/system/info', systemController.getSystemInfo);
+router.post('/system/open-recordings-folder', systemController.openRecordingsFolder);
+router.post('/system/open-folder', systemController.openFolder);
 
 module.exports = router;

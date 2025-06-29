@@ -64,18 +64,36 @@ MyRadikoは、radikoの番組を録音・管理するためのWebアプリケー
 
 #### 🚀 ワンクリック起動（推奨）
 
-**Linux/macOS:**
+**Webアプリ版:**
+
+*Linux/macOS:*
 ```bash
 git clone https://github.com/enraku/myradiko.git
 cd myradiko
 ./start.sh
 ```
 
-**Windows:**
+*Windows:*
 ```cmd
 git clone https://github.com/enraku/myradiko.git
 cd myradiko
 start.bat
+```
+
+**🖥️ デスクトップアプリ版 (Electron):**
+
+*Linux/macOS:*
+```bash
+git clone https://github.com/enraku/myradiko.git
+cd myradiko
+./start-electron.sh
+```
+
+*Windows:*
+```cmd
+git clone https://github.com/enraku/myradiko.git
+cd myradiko
+start-electron.bat
 ```
 
 #### 📋 手動起動
@@ -140,6 +158,15 @@ npm run setup        # 初期セットアップ
 npm run test:all     # 全テスト実行
 npm run db:init      # データベース初期化
 npm run build        # フロントエンドビルド
+
+# Electronデスクトップアプリ関連
+npm run electron             # Electronアプリ起動
+npm run electron:dev         # 開発用Electronアプリ起動
+npm run electron:build:win   # Windows用実行ファイル作成
+npm run electron:build:mac   # macOS用実行ファイル作成
+npm run electron:build:linux # Linux用実行ファイル作成
+npm run electron:pack        # パッケージ作成
+npm run electron:dist        # 配布用パッケージ作成
 ```
 
 ## 使用方法
