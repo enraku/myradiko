@@ -207,7 +207,19 @@
                   出演: <span v-html="highlightSearchTerm(program.performer)"></span>
                 </div>
                 <div class="program-actions">
-                  <button @click="reserveProgram(program)" class="reserve-btn">
+                  <button 
+                    v-if="isPastProgram(program)" 
+                    @click="downloadProgram(program)" 
+                    class="download-btn"
+                    :disabled="downloading.includes(program.id)"
+                  >
+                    {{ downloading.includes(program.id) ? 'ダウンロード中...' : 'ダウンロード' }}
+                  </button>
+                  <button 
+                    v-else 
+                    @click="reserveProgram(program)" 
+                    class="reserve-btn"
+                  >
                     録音予約
                   </button>
                 </div>
@@ -255,7 +267,19 @@
                     </div>
                   </td>
                   <td class="action-cell">
-                    <button @click="reserveProgram(program)" class="reserve-btn">
+                    <button 
+                      v-if="isPastProgram(program)" 
+                      @click="downloadProgram(program)" 
+                      class="download-btn"
+                      :disabled="downloading.includes(program.id)"
+                    >
+                      {{ downloading.includes(program.id) ? 'ダウンロード中...' : 'ダウンロード' }}
+                    </button>
+                    <button 
+                      v-else 
+                      @click="reserveProgram(program)" 
+                      class="reserve-btn"
+                    >
                       録音予約
                     </button>
                   </td>
@@ -273,6 +297,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { appState, actions } from '../store/index.js'
 import { formatTime, getTodayRadikoDate, addDaysToRadikoDate, isTimeInRange } from '../utils/dateUtils.js'
+import axios from 'axios'
 
 export default {
   name: 'ProgramGuide',
@@ -285,6 +310,9 @@ export default {
     const selectedGenre = ref('')
     const selectedTimeRange = ref('')
     const selectedDuration = ref('')
+    
+    // ダウンロード状態
+    const downloading = ref([])
     
     // 今日の日付をデフォルトに設定
     const today = new Date()
@@ -565,6 +593,39 @@ export default {
       }
     }, { immediate: false })
     
+    // 過去番組判定
+    const isPastProgram = (program) => {
+      const now = new Date()
+      const programEnd = new Date(program.end_time)
+      return programEnd < now
+    }
+    
+    // 番組ダウンロード
+    const downloadProgram = async (program) => {
+      if (downloading.value.includes(program.id)) return
+      
+      downloading.value.push(program.id)
+      
+      try {
+        const response = await axios.post('/api/downloads', {
+          stationId: program.station_id,
+          startTime: program.start_time,
+          endTime: program.end_time,
+          title: program.title,
+          stationName: stations.value.find(s => s.id === program.station_id)?.name || program.station_id
+        })
+        
+        if (response.data.success) {
+          alert(`ダウンロードを開始しました: ${program.title}`)
+        }
+      } catch (error) {
+        console.error('Failed to start download:', error)
+        alert('ダウンロードの開始に失敗しました: ' + (error.response?.data?.message || error.message))
+      } finally {
+        downloading.value = downloading.value.filter(id => id !== program.id)
+      }
+    }
+    
     return {
       selectedStationId,
       selectedDateInput,
@@ -595,7 +656,12 @@ export default {
       highlightSearchTerm,
       truncateText,
       isHighlighted,
-      calculateDuration
+      calculateDuration,
+      
+      // ダウンロード機能
+      isPastProgram,
+      downloadProgram,
+      downloading
     }
   }
 }
@@ -964,6 +1030,27 @@ export default {
 
 .reserve-btn:hover {
   background: #5a6fd8;
+}
+
+.download-btn {
+  padding: 0.5rem 1rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.download-btn:hover:not(:disabled) {
+  background: #ee5a5a;
+}
+
+.download-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* 検索ハイライト */
